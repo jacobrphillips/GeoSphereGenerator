@@ -1,0 +1,113 @@
+@model Circle
+
+@{
+    double radius = Model?.Radius ?? 1; // Three.js Radius default is 1.
+    int widthSegments = Model?.X ?? 3; //Width Segment default is 3.
+    int heightSegments = Model?.Y ?? 2; //Height Segment default is 2.
+}
+
+<div class="container mt-8 col-xxl-8 px-4 py-5">
+     <div class="row mt-5">
+        <h3>Instructions:</h3>
+        <p>
+            Adjust the values of each field to create various 3D rendered polygons using Three.js.
+        </p>
+         <i style="color: var(--dark-color);">Built with ASP.NET Core MVC</i>
+    </div>
+    <div class="row g-5 py-5 row-cols-1 row-cols-lg-2">
+        <div class="col col-lg-4 order-last order-lg-first">
+            <form class="p-5 border rounded" asp-controller="Circle" asp-action="GenerateCircle" method="post" onsubmit="updateSphere(document.getElementById('radius').value, document.getElementById('x').value, document.getElementById('y').value)">
+                <div class="mb-3">
+                    <label for="x" class="form-label">Width Segments:</label>
+                    <input min="3" type="number" class="form-control" name="X" id="x" required>
+                </div>
+                <div class="mb-3">
+                    <label for="y" class="form-label">Height Segments:</label>
+                    <input min="2" type="number" class="form-control" name="Y" id="y" required>
+                </div>
+                <div class="mb-3">
+                    <label for="radius" class="form-label">Radius:</label>
+                    <input min="1" type="number" class="form-control" name="Radius" id="radius" required>
+                </div>
+                <button type="submit" class="btn btn-dark">Generate</button>
+            </form>
+        </div>
+
+        <div class="col col-lg-8">
+          <canvas id="canvas"></canvas>
+            <script>
+                var scene = new THREE.Scene();
+                var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("canvas") });
+
+                var radius = @radius;
+                var widthSegments = @widthSegments;
+                var heightSegments = @heightSegments;
+
+                 // Create a sphere mesh
+                var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments); // Use widthSegments and heightSegments
+                var material = new THREE.MeshBasicMaterial({ color: '#FFF8D8', wireframe: true }); 
+                var sphere = new THREE.Mesh(geometry, material);
+                scene.add(sphere);
+
+                // Set the background color of the scene
+                renderer.setClearColor(0x373737);
+
+                camera.position.z = 5;
+
+                var animate = function () {
+                    requestAnimationFrame(animate);
+                    sphere.rotation.x += 0.01;
+                    sphere.rotation.y += 0.01;
+                    renderer.render(scene, camera);
+                };
+
+                animate();
+
+                // Function to update the sphere's radius based on the form input
+                function updateSphere(newRadius, newWidthSeg, newHeightSeg) {
+                    console.log("Updating sphere with new radius:", newRadius); // Check if the function is being called
+
+                    radius = parseFloat(newRadius);
+                    widthSegments = parseInt(newWidthSeg);
+                    heightSegments = parseInt(newHeightSeg);
+
+                    // Remove the previous sphere
+                    scene.remove(sphere);
+
+                    // Create a new sphere geometry
+                    geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+
+                    // Create a new sphere mesh
+                    sphere = new THREE.Mesh(geometry, material);
+
+                    // Add the new sphere to the scene
+                    scene.add(sphere);
+                }
+
+                // Update the canvas size based on screen width
+                function updateCanvasSize() {
+                    var canvas = document.getElementById("canvas");
+                    var canvasWidth = window.innerWidth / 2; 
+                    var canvasHeight = window.innerHeight;
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+
+                    // Update the camera aspect ratio
+                    camera.aspect = canvasWidth / canvasHeight;
+                    camera.updateProjectionMatrix();
+
+                    // Update the renderer size
+                    renderer.setSize(canvasWidth, canvasHeight);
+
+                    // Call animate to render the scene with the new canvas size
+                    animate();
+                }
+
+                // Call the function initially and on window resize
+                updateCanvasSize();
+                window.addEventListener('resize', updateCanvasSize);
+            </script>
+        </div>
+    </div>
+</div>

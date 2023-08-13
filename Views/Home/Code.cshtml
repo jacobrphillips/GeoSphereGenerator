@@ -1,0 +1,262 @@
+@{
+  ViewData["Title"] = "Code";
+}
+
+<div class="container col-xxl-8 py-5 px-5 mt-5">
+  <h2 class="border-1 border-bottom border-dark">
+    The Code for GeoSphere Generator.
+  </h2>
+  <div class="row row-cols-1 row-cols-lg-2">
+    <div class="col-lg-8">
+      <pre class="line-numbers"><code class="language-csharp">
+                public class Circle
+                  {
+                    public int X { get; set; }
+                    public int Y { get; set; }
+                    public double Radius { get; set; }
+                  }
+            </code>
+            </pre>
+    </div>
+    <div class="col-lg-4 border-1 border-bottom border-dark">
+      <p>To begin, lets start with the Model for our Circle</p>
+      <h5>CircleModel.cs</h5>
+      <p>
+        The "Circle" Model is going to be our blueprint for generating our 3D
+        polygon. It's a public class with the name of Circle. This class
+        contains three properties: the integer property X which will represent
+        the Width Segments, the integer property Y which will represent the
+        Height Segments, and the double property of Radius.
+      </p>
+    </div>
+  </div>
+  <div class="row row-cols-1 row-cols-lg-2">
+    <div class="col-lg-8">
+      <pre class="line-numbers"><code class="language-csharp">
+                using System.Diagnostics;
+                using Microsoft.AspNetCore.Mvc;
+                using GeoSphereGenerator.Models;
+
+                namespace GeoSphereGenerator.Controllers;
+
+                public class CircleController : Controller
+                {
+                  public IActionResult App()
+                  {
+                    return View();
+                  }
+
+                  [HttpPost]
+                  public IActionResult GenerateCircle(Circle circle)
+                  {
+                    return View("App", circle);
+                  }
+
+                }
+            </code>
+            </pre>
+    </div>
+    <div class="col-lg-4 border-1 border-bottom border-dark">
+      <p>This is our Controller for our application</p>
+      <h5>CircleController.cs</h5>
+      <p>
+        Lines 1 through 3 are using statements that import namespaces that in
+        this case are used for providing tools for debugging and perfomance
+        monitoring, granting access to essential MVC framework components, and
+        making the Circle Model accessible in this controller.
+      </p>
+      <p>
+        Line 5 is declaring our Controllers namespace as
+        GeoSphereGenerator.Controllers, this encapsulates its functionality
+        within a logical context.
+      </p>
+      <p>
+        Line 7 is where we define our 'CircleController' public class,
+        inheriting from the Controller base class, indicating its role in
+        managing MVC actions.
+      </p>
+      <p>
+        Line 9 This line creates the App action, which returns an IActionResult.
+        This action handles requests related to your application's circle
+        interactions. In this case, App will be the name of the View that will
+        hold the User Interface for the user to create a polygon. The App action
+        returns a view, allowing users to engage with the app's content.
+      </p>
+      <p>
+        Line 14 displays an attribute. This attribute denotes that the following
+        action is triggered by an HTTP POST request. We'll be using this inline
+        with our form that the user will input values for their polygon to be
+        generated with.
+      </p>
+      <p>
+        Line 15 defines the GenerateCircle action, which takes a Circle object
+        as a parameter (A Circle object is an instance of our Circle Model).
+        It's responsible for processing circle data. The GenerateCircle action
+        returns the "App" view, incorporating the submitted circle data for
+        users to explore and manipulate.
+      </p>
+    </div>
+  </div>
+  <div class="row row-cols-1 row-cols-lg-2">
+    <div class="col-lg-8">
+      <pre class="line-numbers">
+              <code class="language-cshtml">
+                &#64;model Circle
+
+                &#64;{
+                  double radius = Model?.Radius ?? 1; // Three.js Radius default is 1.
+                  int widthSegments = Model?.X ?? 3; //Width Segment default is 3.
+                  int heightSegments = Model?.Y ?? 2; //Height Segment default is 2.
+                }
+
+                &lt;div class="container mt-8 col-xxl-8 px-4 py-5"&gt;
+                  &lt;div class="row mt-5"&gt;
+                  &lt;h3&gt;Instructions:&lt;/h3&gt;
+                    &lt;p&gt;
+                        Adjust the values of each field to create various 3D rendered polygons using Three.js.
+                    &lt;/p&gt;
+                    &lt;i style="color: var(--dark-color);"&gt;Built with ASP.NET Core MVC&lt;/i&gt;
+                  &lt;/div&gt;
+                  &lt;div class="row g-5 py-5 row-cols-1 row-cols-lg-2"&gt;
+                  &lt;div class="col col-lg-4 order-last order-lg-first"&gt;
+                      &lt;form class="p-5 border rounded" asp-controller="Circle" asp-action="GenerateCircle" method="post" onsubmit="updateSphere(document.getElementById('radius').value, document.getElementById('x').value, document.getElementById('y').value)"&gt;
+                        &lt;div class="mb-3"&gt;
+                          &lt;label for="x" class="form-label"&gt;Width Segments:&lt;/label&gt;
+                          &lt;input min="3" type="number" class="form-control" name="X" id="x" required&gt;
+                        &lt;/div&gt;
+                      &lt;div class="mb-3"&gt;
+                          &lt;label for="y" class="form-label"&gt;Height Segments:&lt;/label&gt;
+                          &lt;input min="2" type="number" class="form-control" name="Y" id="y" required&gt;
+                      &lt;/div&gt;
+                      &lt;div class="mb-3"&gt;
+                          &lt;label for="radius" class="form-label"&gt;Radius:&lt;/label&gt;
+                          &lt;input min="1" type="number" class="form-control" name="Radius" id="radius" required&gt;
+                      &lt;/div&gt;
+                      &lt;button type="submit" class="btn btn-dark"&gt;Generate&lt;/button&gt;
+                      &lt;/form&gt;
+                  &lt;/div&gt;
+
+                  &lt;div class="col col-lg-8"&gt;
+                    &lt;canvas id="canvas"&gt;&lt;/canvas&gt;
+                      &lt;script&gt;
+                          var scene = new THREE.Scene();
+                          var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                          var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("canvas") });
+
+                          var radius =  &#64;radius;
+                          var widthSegments =  &#64;widthSegments;
+                          var heightSegments =  &#64;heightSegments;
+
+                          // Create a sphere mesh
+                          var geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments); // Use widthSegments and heightSegments
+                          var material = new THREE.MeshBasicMaterial({ color: '#FFF8D8', wireframe: true }); 
+                          var sphere = new THREE.Mesh(geometry, material);
+                          scene.add(sphere);
+
+                          // Set the background color of the scene
+                          renderer.setClearColor(0x373737);
+
+                          camera.position.z = 5;
+
+                          var animate = function () {
+                              requestAnimationFrame(animate);
+                              sphere.rotation.x += 0.01;
+                              sphere.rotation.y += 0.01;
+                              renderer.render(scene, camera);
+                          };
+
+                          animate();
+
+                          // Function to update the sphere's radius based on the form input
+                          function updateSphere(newRadius, newWidthSeg, newHeightSeg) {
+                              console.log("Updating sphere with new radius:", newRadius); // Check if the function is being called
+
+                              radius = parseFloat(newRadius);
+                              widthSegments = parseInt(newWidthSeg);
+                              heightSegments = parseInt(newHeightSeg);
+
+                              // Remove the previous sphere
+                              scene.remove(sphere);
+
+                              // Create a new sphere geometry
+                              geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+
+                              // Create a new sphere mesh
+                              sphere = new THREE.Mesh(geometry, material);
+
+                              // Add the new sphere to the scene
+                              scene.add(sphere);
+                          }
+
+                          // Update the canvas size based on screen width
+                          function updateCanvasSize() {
+                              var canvas = document.getElementById("canvas");
+                              var canvasWidth = window.innerWidth / 2; 
+                              var canvasHeight = window.innerHeight;
+                              canvas.width = canvasWidth;
+                              canvas.height = canvasHeight;
+
+                              // Update the camera aspect ratio
+                              camera.aspect = canvasWidth / canvasHeight;
+                              camera.updateProjectionMatrix();
+
+                              // Update the renderer size
+                              renderer.setSize(canvasWidth, canvasHeight);
+
+                              // Call animate to render the scene with the new canvas size
+                              animate();
+                          }
+
+                          // Call the function initially and on window resize
+                          updateCanvasSize();
+                          window.addEventListener('resize', updateCanvasSize);
+                        &lt;/script&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+
+               </code>
+            </pre>
+    </div>
+    <div class="col-lg-4 border-1 border-bottom border-dark">
+      <p>This is our View for our app.</p>
+      <h5>App.cshtml</h5>
+      <p>
+        Lines 1 through 3 are using statements that import namespaces that in
+        this case are used for providing tools for debugging and perfomance
+        monitoring, granting access to essential MVC framework components, and
+        making the Circle Model accessible in this controller.
+      </p>
+      <p>
+        Line 5 is declaring our Controllers namespace as
+        GeoSphereGenerator.Controllers, this encapsulates its functionality
+        within a logical context.
+      </p>
+      <p>
+        Line 7 is where we define our 'CircleController' public class,
+        inheriting from the Controller base class, indicating its role in
+        managing MVC actions.
+      </p>
+      <p>
+        Line 9 This line creates the App action, which returns an IActionResult.
+        This action handles requests related to your application's circle
+        interactions. In this case, App will be the name of the View that will
+        hold the User Interface for the user to create a polygon. The App action
+        returns a view, allowing users to engage with the app's content.
+      </p>
+      <p>
+        Line 14 displays an attribute. This attribute denotes that the following
+        action is triggered by an HTTP POST request. We'll be using this inline
+        with our form that the user will input values for their polygon to be
+        generated with.
+      </p>
+      <p>
+        Line 15 defines the GenerateCircle action, which takes a Circle object
+        as a parameter (A Circle object is an instance of our Circle Model).
+        It's responsible for processing circle data. The GenerateCircle action
+        returns the "App" view, incorporating the submitted circle data for
+        users to explore and manipulate.
+      </p>
+    </div>
+  </div>
+</div>
