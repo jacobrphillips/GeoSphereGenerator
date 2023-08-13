@@ -1,6 +1,9 @@
 @model Circle
 
 @{
+
+    ViewData["Title"] = "App Page";
+
     double radius = Model?.Radius ?? 1; // Three.js Radius default is 1.
     int widthSegments = Model?.X ?? 3; //Width Segment default is 3.
     int heightSegments = Model?.Y ?? 2; //Height Segment default is 2.
