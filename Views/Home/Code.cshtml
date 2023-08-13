@@ -223,41 +223,69 @@
       <p>This is our View for our app.</p>
       <h5>App.cshtml</h5>
       <p>
-        Lines 1 through 3 are using statements that import namespaces that in
-        this case are used for providing tools for debugging and perfomance
-        monitoring, granting access to essential MVC framework components, and
-        making the Circle Model accessible in this controller.
+        Line 1 is a directive used in ASP.NET Core MVC to specify the model type
+        for the current view. In this case, it indicates that the view is
+        related to a "Circle" model.
       </p>
       <p>
-        Line 5 is declaring our Controllers namespace as
-        GeoSphereGenerator.Controllers, this encapsulates its functionality
-        within a logical context.
+        Lines 3 - 7 is a Razor code block, used in ASP.NET Core MVC to embed C#
+        code within the HTML view. In this case, it's used to initialize
+        variables like radius, widthSegments, and heightSegments with default
+        values or values from the model if available.
       </p>
       <p>
-        Line 7 is where we define our 'CircleController' public class,
-        inheriting from the Controller base class, indicating its role in
-        managing MVC actions.
+        Line 9 is the main container that holds the content of the page. It uses
+        the Bootstrap CSS framework for styling.
       </p>
       <p>
-        Line 9 This line creates the App action, which returns an IActionResult.
-        This action handles requests related to your application's circle
-        interactions. In this case, App will be the name of the View that will
-        hold the User Interface for the user to create a polygon. The App action
-        returns a view, allowing users to engage with the app's content.
+        Lines 10 - 34 is where our text headers and the HTML form that allows
+        users to input values for generating the 3D polygons are located. When
+        the form is submitted, the updateSphere JavaScript function is called
+        with the input values.
       </p>
       <p>
-        Line 14 displays an attribute. This attribute denotes that the following
-        action is triggered by an HTTP POST request. We'll be using this inline
-        with our form that the user will input values for their polygon to be
-        generated with.
+        Line 37 This is an HTML5 canvas element where the Three.js scene will be
+        rendered. It's given an id of "canvas" for easy reference in JavaScript.
+        You can find Three.js documentation
+        <a
+          href="https://threejs.org/docs/index.html?q=sphere#api/en/geometries/SphereGeometry"
+          target="_blank"
+          >here</a
+        >.
       </p>
       <p>
-        Line 15 defines the GenerateCircle action, which takes a Circle object
-        as a parameter (A Circle object is an instance of our Circle Model).
-        It's responsible for processing circle data. The GenerateCircle action
-        returns the "App" view, incorporating the submitted circle data for
-        users to explore and manipulate.
+        Lines 38 - 110 is a JavaScript script block where the Three.js code and
+        other client-side logic are written. This is where it creates and
+        configures the Three.js scene, camera, renderer, and handles the
+        sphere's rendering, rotation, and updating based on user input.
+      </p>
+      <p>
+        Lines 39 - 41 is where the Three.js scene, camera, and renderer are set
+        up.
+      </p>
+      <p>
+        Lines 43 - 45 The radius, widthSegments, and heightSegments variables
+        are initialized with the values from the Razor code block. This is for
+        these default values to be accessible within our JavaScript's scope.
+      </p>
+      <p>
+        Lines 48 - 51 creates our shape with a wireframe mesh material, and adds
+        it to our scene.
+      </p>
+      <p>
+        Lines 56 - 65 creates our camera's position at the z index at the center
+        of our scene. The animate function is how our polygon rotates within the
+        scene.
+      </p>
+      <p>
+        Lines 68 - 86 contain the updateSphere function.
+        This function allows for the user's input values to render a completely new polygon and scene.
+      </p>
+      <p>
+        Lines 89 - 109 contain the updateCanvasSize function.
+        This function allows for the canvas dimension to be resized compared to the user's browser window size, making our scene window responsive.
       </p>
     </div>
   </div>
 </div>
+
